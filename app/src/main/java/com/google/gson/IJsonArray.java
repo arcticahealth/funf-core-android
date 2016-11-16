@@ -1,4 +1,4 @@
-package edu.mit.media.funf.json;
+package com.google.gson;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -7,9 +7,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonPrimitive;
+import edu.mit.media.funf.json.JsonUtils;
 
 /**
  * An immutable JsonArray implementation, which contains no mutation functions
@@ -31,7 +29,12 @@ public class IJsonArray extends JsonElement {
 		}
 		elements = Collections.unmodifiableList(list);
 	}
-	
+
+	@Override
+	JsonElement deepCopy() {
+		return null;
+	}
+
 	@Override
 	public boolean isJsonArray() {
 		return true;

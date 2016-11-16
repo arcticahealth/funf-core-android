@@ -52,7 +52,7 @@ import edu.mit.media.funf.FunfManager;
 import edu.mit.media.funf.Schedule.DefaultSchedule;
 import edu.mit.media.funf.data.DataNormalizer;
 import edu.mit.media.funf.json.BundleTypeAdapter;
-import edu.mit.media.funf.json.IJsonObject;
+import com.google.gson.IJsonObject;
 import edu.mit.media.funf.json.JsonUtils;
 import edu.mit.media.funf.probe.builtin.ProbeKeys.BaseProbeKeys;
 import edu.mit.media.funf.security.HashUtil;

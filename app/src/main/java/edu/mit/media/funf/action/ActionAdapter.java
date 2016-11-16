@@ -29,7 +29,7 @@ import com.google.gson.JsonElement;
 
 import edu.mit.media.funf.config.Configurable;
 import edu.mit.media.funf.datasource.Startable.TriggerAction;
-import edu.mit.media.funf.json.IJsonObject;
+import com.google.gson.IJsonObject;
 import edu.mit.media.funf.probe.Probe.DataListener;
 
 public class ActionAdapter implements DataListener {

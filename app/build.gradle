@@ -18,7 +18,9 @@ android {
 }
 
 dependencies {
-    compile files('libs/gson-2.1-javadoc.jar')
-    compile files('libs/gson-2.1-sources.jar')
-    compile files('libs/gson-2.1.jar')
+    compile 'com.amazonaws:aws-android-sdk-core:2.3.3'
+    compile 'com.amazonaws:aws-android-sdk-s3:2.2.22'
+    compile 'com.amazonaws:aws-android-sdk-ddb:2.2.22'
+    compile 'com.amazonaws:aws-android-sdk-cognito:2.2.22'
+    compile group: 'com.google.guava', name: 'guava', version: '19.0'
 }

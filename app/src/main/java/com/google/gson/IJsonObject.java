@@ -1,4 +1,4 @@
-package edu.mit.media.funf.json;
+package com.google.gson;
 
 import java.util.Collections;
 import java.util.Map;
@@ -6,10 +6,7 @@ import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonNull;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
+import edu.mit.media.funf.json.JsonUtils;
 
 /**
  * An immutable JsonObject that orders keys alphabetically for consistency in
@@ -21,6 +18,9 @@ public class IJsonObject extends JsonElement {
 	/**
 	 * The immutable map of entries
 	 */
+
+
+
 	private final SortedMap<String, JsonElement> members;
 
 	public IJsonObject(IJsonObject jsonObject) {
@@ -39,10 +39,15 @@ public class IJsonObject extends JsonElement {
 	}
 
 	@Override
+	JsonElement deepCopy() {
+		return null;
+	}
+
+	@Override
 	public boolean isJsonObject() {
 		return true;
 	}
-	
+
 	@Override
 	public JsonObject getAsJsonObject() {
 		JsonObject jsonObject = new JsonObject();
@@ -144,6 +149,6 @@ public class IJsonObject extends JsonElement {
 		}
 		return toStringCache;
 	}
-	
-	
+
+
 }

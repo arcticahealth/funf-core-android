@@ -29,6 +29,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Level;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
@@ -70,11 +71,11 @@ import edu.mit.media.funf.config.HttpConfigUpdater;
 import edu.mit.media.funf.config.ListenerInjectorTypeAdapterFactory;
 import edu.mit.media.funf.config.SingletonTypeAdapterFactory;
 import edu.mit.media.funf.datasource.Startable;
-import edu.mit.media.funf.datasource.StartableDataSource;
 import edu.mit.media.funf.pipeline.Pipeline;
 import edu.mit.media.funf.pipeline.PipelineFactory;
 import edu.mit.media.funf.probe.Probe;
 import edu.mit.media.funf.probe.Probe.DataListener;
+import edu.mit.media.funf.storage.AmazonS3Archive;
 import edu.mit.media.funf.storage.DefaultArchive;
 import edu.mit.media.funf.storage.FileArchive;
 import edu.mit.media.funf.storage.HttpArchive;
@@ -111,6 +112,7 @@ public class FunfManager extends Service {
         this.disabledPipelines = new HashMap<String, Pipeline>();
         this.disabledPipelineNames = new HashSet<String>(Arrays.asList(prefs.getString(DISABLED_PIPELINE_LIST, "").split(",")));
         this.disabledPipelineNames.remove(""); // Remove the empty name, if no disabled pipelines exist
+        java.util.logging.Logger.getLogger("com.amazonaws").setLevel(Level.ALL);
         reload();
     }
 
@@ -284,7 +286,7 @@ public class FunfManager extends Service {
         .registerTypeAdapterFactory(new ConfigurableRuntimeTypeAdapterFactory<Schedule>(context, Schedule.class, BasicSchedule.class))
         .registerTypeAdapterFactory(new ConfigurableRuntimeTypeAdapterFactory<ConfigUpdater>(context, ConfigUpdater.class, HttpConfigUpdater.class))
         .registerTypeAdapterFactory(new ConfigurableRuntimeTypeAdapterFactory<FileArchive>(context, FileArchive.class, DefaultArchive.class))
-        .registerTypeAdapterFactory(new ConfigurableRuntimeTypeAdapterFactory<RemoteFileArchive>(context, RemoteFileArchive.class, HttpArchive.class))
+        .registerTypeAdapterFactory(new ConfigurableRuntimeTypeAdapterFactory<RemoteFileArchive>(context, RemoteFileArchive.class, AmazonS3Archive.class))
         .registerTypeAdapterFactory(new ConfigurableRuntimeTypeAdapterFactory<DataListener>(context, DataListener.class, null))
         .registerTypeAdapter(DefaultSchedule.class, new DefaultScheduleSerializer())
         .registerTypeAdapter(Class.class, new JsonSerializer<Class<?>>() {

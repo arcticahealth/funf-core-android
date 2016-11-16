@@ -50,11 +50,11 @@ public class HttpArchive implements RemoteFileArchive {
 	
     @Configurable
 	private String url;
-    
-    @Configurable
-    private boolean wifiOnly = false;
-    
-    private Context context;
+
+	@Configurable
+	private boolean wifiOnly = false;
+
+	private Context context;
     
 	@SuppressWarnings("unused")
 	private String mimeType;
