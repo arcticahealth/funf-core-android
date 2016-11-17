@@ -41,7 +41,7 @@ import com.google.gson.JsonObject;
 import edu.mit.media.funf.Schedule;
 import edu.mit.media.funf.config.Configurable;
 import edu.mit.media.funf.config.RuntimeTypeAdapterFactory;
-import edu.mit.media.funf.json.IJsonObject;
+import com.google.gson.IJsonObject;
 import edu.mit.media.funf.probe.Probe.Base;
 import edu.mit.media.funf.probe.Probe.ContinuousProbe;
 import edu.mit.media.funf.probe.Probe.Description;

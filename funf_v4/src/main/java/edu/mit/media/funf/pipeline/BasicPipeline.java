@@ -25,14 +25,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import android.app.Notification;
-import android.app.NotificationManager;
-import android.content.ContentValues;
 import android.content.Context;
-import android.content.Intent;
 import android.database.SQLException;
-import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
@@ -48,7 +42,7 @@ import edu.mit.media.funf.config.ConfigUpdater;
 import edu.mit.media.funf.config.Configurable;
 import edu.mit.media.funf.config.RuntimeTypeAdapterFactory;
 import edu.mit.media.funf.data.Geofencer;
-import edu.mit.media.funf.json.IJsonObject;
+import com.google.gson.IJsonObject;
 import edu.mit.media.funf.probe.Probe.DataListener;
 import edu.mit.media.funf.probe.builtin.ProbeKeys;
 import edu.mit.media.funf.storage.DatabaseHelper;
@@ -60,8 +54,6 @@ import edu.mit.media.funf.storage.RemoteFileArchive;
 import edu.mit.media.funf.storage.UploadService;
 import edu.mit.media.funf.util.LogUtil;
 import edu.mit.media.funf.util.StringUtil;
-
-import static edu.mit.media.funf.util.LogUtil.TAG;
 
 public class BasicPipeline implements Pipeline, DataListener {
 

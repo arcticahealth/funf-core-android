@@ -14,7 +14,7 @@ import java.io.InputStreamReader;
 import java.util.TimeZone;
 
 import edu.mit.media.funf.FunfManager;
-import edu.mit.media.funf.json.IJsonObject;
+import com.google.gson.IJsonObject;
 
 /**
  * Created by astopczynski on 10/26/15.

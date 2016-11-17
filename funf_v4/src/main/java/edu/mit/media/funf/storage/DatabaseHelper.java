@@ -1,8 +1,6 @@
 package edu.mit.media.funf.storage;
 
-import android.content.Context;
-
-import edu.mit.media.funf.json.IJsonObject;
+import com.google.gson.IJsonObject;
 
 /**
  * Created by astopczynski on 10/27/15.

@@ -25,12 +25,15 @@ package edu.mit.media.funf.config;
 
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Type;
+import java.util.Collections;
 
 import com.google.gson.ExclusionStrategy;
 import com.google.gson.FieldAttributes;
 import com.google.gson.FieldNamingPolicy;
 import com.google.gson.FieldNamingStrategy;
 import com.google.gson.Gson;
+import com.google.gson.InstanceCreator;
 import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
 import com.google.gson.internal.ConstructorConstructor;
@@ -43,7 +46,7 @@ public class ConfigurableTypeAdapterFactory implements TypeAdapterFactory {
 	 
 	 public ConfigurableTypeAdapterFactory() {
 		 delegate = new ReflectiveTypeAdapterFactory(
-				 new ConstructorConstructor(),
+				 new ConstructorConstructor(Collections.<Type, InstanceCreator<?>>emptyMap()),
 				 new ConfigurableFieldNamingStrategy(), 
 				new Excluder().withExclusionStrategy(new ConfigurableExclusionStrategy(), true, true));
 	 }

@@ -34,8 +34,8 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-import edu.mit.media.funf.json.IJsonObject;
-import edu.mit.media.funf.probe.builtin.ProbeKeys;
+import com.google.gson.IJsonObject;
+
 import edu.mit.media.funf.time.TimeUtil;
 import edu.mit.media.funf.util.StringUtil;
 import edu.mit.media.funf.util.UuidUtil;
