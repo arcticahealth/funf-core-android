@@ -29,11 +29,11 @@ public class IJsonArray extends JsonElement {
 		}
 		elements = Collections.unmodifiableList(list);
 	}
-
-	@Override
-	JsonElement deepCopy() {
-		return null;
-	}
+//
+//	@Override
+//	JsonElement deepCopy() {
+//		return null;
+//	}
 
 	@Override
 	public boolean isJsonArray() {

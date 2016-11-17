@@ -35,10 +35,10 @@ public class IJsonObject extends JsonElement {
 		members = Collections.unmodifiableSortedMap(map);
 	}
 
-	@Override
-	JsonElement deepCopy() {
-		return null;
-	}
+//	@Override
+//	JsonElement deepCopy() {
+//		return null;
+//	}
 
 	@Override
 	public boolean isJsonObject() {

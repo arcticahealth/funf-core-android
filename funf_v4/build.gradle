@@ -22,12 +22,19 @@ android {
         exclude 'META-INF/DEPENDENCIES'
     }
 }
+configurations.all {
+    resolutionStrategy {
+        force 'com.google.code.gson:gson:2.1'
+    }
+}
+
 
 dependencies {
-    compile 'com.amazonaws:aws-android-sdk-core:2.3.3'
-    compile 'com.amazonaws:aws-android-sdk-s3:2.2.22'
-    compile 'com.amazonaws:aws-android-sdk-ddb:2.2.22'
-    compile 'com.amazonaws:aws-android-sdk-cognito:2.2.22'
+    compile('com.amazonaws:aws-android-sdk-core:2.3.3')
+    compile files('libs/gson-2.1.jar')
+    compile 'com.amazonaws:aws-android-sdk-s3:2.3.3'
+    compile 'com.amazonaws:aws-android-sdk-ddb:2.3.3'
+    compile 'com.amazonaws:aws-android-sdk-cognito:2.3.3'
     compile group: 'com.google.guava', name: 'guava', version: '19.0'
 }
 
