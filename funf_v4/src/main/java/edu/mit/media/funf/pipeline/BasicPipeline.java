@@ -186,10 +186,14 @@ public class BasicPipeline implements Pipeline, DataListener {
 
     final double timestamp = data.get(ProbeKeys.BaseProbeKeys.TIMESTAMP).getAsDouble();
     final IJsonObject value = data;
-    if (timestamp == 0L || name == null || value == null) {
-        Log.e(LogUtil.TAG, "Unable to save data.  Not all required values specified. " + timestamp + " " + name + " - " + value);
+    if (name == null || value == null) {
+        Log.e(LogUtil.TAG, "Unable to save data.  Not all required values specified. " + name + " - " + value);
         //TODO custom exception
-        throw new SQLException("Not all required fields specified.");
+
+    }
+    if (timestamp == 0L) {
+      Log.e(LogUtil.TAG, "Timestamp is null in the probe " + name);
+      Log.e(LogUtil.TAG, "This is a funf bug that was causing a crash via runtime exception. I have set it to log this message instead. 11/21/2016 ");
     }
 
     this.databaseHelper.insert(name, timestamp, value);
@@ -239,7 +243,7 @@ public class BasicPipeline implements Pipeline, DataListener {
   @Override
   public void onRun(String action, JsonElement config) {
     // Run on handler thread
-    if (ACTION_ARCHIVE.equals(action)) {
+    if (ACTION_ARCHIVE.equals(action) && handler != null) {
       handler.obtainMessage(ARCHIVE, config).sendToTarget();
     } else if (ACTION_UPLOAD.equals(action)) {
       handler.obtainMessage(UPLOAD, config).sendToTarget();

@@ -20,18 +20,19 @@ import java.io.File;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
+import edu.mit.media.funf.BuildConfig;
 import edu.mit.media.funf.config.Configurable;
 
 public class AmazonS3Archive implements RemoteFileArchive {
 
     @Configurable
-    private static String cognitoPoolID = "us-west-2:6152caf7-9235-4976-a78c-6d99fe4bf691";
+    private static String cognitoPoolID = BuildConfig.COGNITO_POOL_ID;
+    @Configurable
+    private static String bucketName = BuildConfig.S3_BUCKET_NAME;
     @Configurable
     private static Regions region=Regions.US_WEST_2;
     @Configurable
     private String url;
-    @Configurable
-    private String bucketName="wtbuck";
     @Configurable
     private boolean wifiOnly = false;
 

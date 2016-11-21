@@ -111,6 +111,8 @@ public class BluetoothProbe extends Base implements PassiveProbe {
 	
 	private boolean shouldDisableOnFinish = false; // Keeps track of previous bluetooth state
 	private void startDiscovery() {
+		// TODO: wtf is going on with the adapter being null?
+		if (adapter == null) return;
 		if (adapter.isEnabled()) {
 			adapter.startDiscovery();
 			if (include_scan_started) sendScanStartedData();
@@ -149,6 +151,8 @@ public class BluetoothProbe extends Base implements PassiveProbe {
 		} catch (IllegalArgumentException e) {
 			// Previously stopped
 		}
+		// TODO: wtf is going on with the adapter being null?
+		if (adapter == null) return;
 		if (adapter.isDiscovering()) {
 			adapter.cancelDiscovery();
 		}

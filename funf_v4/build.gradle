@@ -14,8 +14,11 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
         }
+        buildTypes.each {
+            it.buildConfigField 'String', "COGNITO_POOL_ID", rootProject.ext.cognitoPoolID
+            it.buildConfigField 'String', "S3_BUCKET_NAME", rootProject.ext.s3BucketName
+        }
     }
-
     packagingOptions {
         exclude 'META-INF/LICENSE'
         exclude 'META-INF/NOTICE'
