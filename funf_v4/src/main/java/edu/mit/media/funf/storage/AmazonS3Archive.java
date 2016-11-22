@@ -3,6 +3,7 @@ package edu.mit.media.funf.storage;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.preference.PreferenceManager;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 
@@ -17,14 +18,18 @@ import com.amazonaws.services.s3.AmazonS3Client;
 import com.google.common.util.concurrent.SettableFuture;
 
 import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 import edu.mit.media.funf.BuildConfig;
 import edu.mit.media.funf.config.Configurable;
+import edu.mit.media.funf.util.HashCodeUtil;
 
 public class AmazonS3Archive implements RemoteFileArchive {
 
+    public static final String TAG = AmazonS3Archive.class.getSimpleName();
     @Configurable
     private static String cognitoPoolID = BuildConfig.COGNITO_POOL_ID;
     @Configurable
@@ -77,8 +82,10 @@ public class AmazonS3Archive implements RemoteFileArchive {
             @Override
             public void onStateChanged(int id, TransferState state) {
                 if (state == TransferState.COMPLETED) {
+                    Log.d(TAG,"upload completed for: " + key);
                     future.set(true);
                 } else if (state == TransferState.FAILED) {
+                    Log.e(TAG,"upload FAILED for: " + key);
                     future.set(false);
                 }
             }
@@ -111,7 +118,14 @@ public class AmazonS3Archive implements RemoteFileArchive {
                     cognitoPoolID,
                     region);
         }
-
+        final String googleToken = PreferenceManager.getDefaultSharedPreferences(context).getString("googleToken", null);
+        if (googleToken != null) {
+            Map<String, String> logins = new HashMap<String, String>();
+            logins.put("accounts.google.com", googleToken);
+            sCredProvider.setLogins(logins);
+        } else {
+            Log.e(TAG,"Unable to retrieve google token from shared prefs");
+        }
         return sCredProvider;
     }
 
