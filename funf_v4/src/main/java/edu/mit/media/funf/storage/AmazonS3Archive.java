@@ -7,6 +7,7 @@ import android.preference.PreferenceManager;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 
+import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.auth.CognitoCachingCredentialsProvider;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferListener;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferObserver;
@@ -31,11 +32,7 @@ public class AmazonS3Archive implements RemoteFileArchive {
 
     public static final String TAG = AmazonS3Archive.class.getSimpleName();
     @Configurable
-    private static String cognitoPoolID = BuildConfig.COGNITO_POOL_ID;
-    @Configurable
     private static String bucketName = BuildConfig.S3_BUCKET_NAME;
-    @Configurable
-    private static Regions region=Regions.US_WEST_2;
     @Configurable
     private String url;
     @Configurable
@@ -46,9 +43,6 @@ public class AmazonS3Archive implements RemoteFileArchive {
     @SuppressWarnings("unused")
     private String mimeType;
 
-    private static AmazonS3Client s3Client;
-    private static CognitoCachingCredentialsProvider sCredProvider;
-    private static TransferUtility sTransferUtility;
 
     public AmazonS3Archive(){}
     @Override
@@ -69,14 +63,12 @@ public class AmazonS3Archive implements RemoteFileArchive {
     }
 
     private Future<Boolean> startUpload(File file) {
-        if (sTransferUtility == null) {
-            sTransferUtility = new TransferUtility(getS3Client(context.getApplicationContext()), context.getApplicationContext());
-        }
+        TransferUtility transferUtility = new TransferUtility(getS3Client(context.getApplicationContext()), context.getApplicationContext());
         final SettableFuture<Boolean> future = SettableFuture.create() ;
         TelephonyManager tMgr = (TelephonyManager)context.getSystemService(Context.TELEPHONY_SERVICE);
-        String mPhoneNumber = tMgr.getDeviceId();
-        final String key = "behavior/" + mPhoneNumber + "/" + file.getName();
-        TransferObserver observer = sTransferUtility.upload(bucketName, key,
+        String deviceId = tMgr.getDeviceId();
+        final String key = "behavior/" + deviceId + "/" + file.getName();
+        TransferObserver observer = transferUtility.upload(bucketName, key,
                 file);
         observer.setTransferListener(new TransferListener() {
             @Override
@@ -105,29 +97,14 @@ public class AmazonS3Archive implements RemoteFileArchive {
 
 
     private AmazonS3 getS3Client(Context context) {
-        if (s3Client == null) {
-            s3Client = new AmazonS3Client(getCredProvider(context.getApplicationContext()));
-        }
-        return s3Client;
+        // I haven't been able to find any good examples of how to intelligently handle amazon credential
+        // refreshing. So I'm just refreshing it every time we use the service.
+        final AWSCredentialsProvider amazonCredProvider = (AWSCredentialsProvider) context.getApplicationContext();
+        amazonCredProvider.refresh();
+        return new AmazonS3Client(amazonCredProvider.getCredentials());
     }
 
-    private static CognitoCachingCredentialsProvider getCredProvider(Context context) {
-        if (sCredProvider == null) {
-            sCredProvider = new CognitoCachingCredentialsProvider(
-                    context.getApplicationContext(),
-                    cognitoPoolID,
-                    region);
-        }
-        final String googleToken = PreferenceManager.getDefaultSharedPreferences(context).getString("googleToken", null);
-        if (googleToken != null) {
-            Map<String, String> logins = new HashMap<String, String>();
-            logins.put("accounts.google.com", googleToken);
-            sCredProvider.setLogins(logins);
-        } else {
-            Log.e(TAG,"Unable to retrieve google token from shared prefs");
-        }
-        return sCredProvider;
-    }
+
 
     public AmazonS3Archive(Context context, final String uploadUrl) {
         this(context, uploadUrl, "application/x-binary");
