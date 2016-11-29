@@ -7,18 +7,26 @@ import android.preference.PreferenceManager;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 
-import com.amazonaws.auth.AWSCredentialsProvider;
+import com.amazonaws.AmazonClientException;
+import com.amazonaws.SDKGlobalConfiguration;
 import com.amazonaws.auth.CognitoCachingCredentialsProvider;
+import com.amazonaws.auth.CognitoCredentialsProvider;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferListener;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferObserver;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferState;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility;
 import com.amazonaws.regions.Regions;
+import com.amazonaws.services.cognitoidentity.model.NotAuthorizedException;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.google.common.util.concurrent.SettableFuture;
 
+import org.apache.http.client.CredentialsProvider;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import java.io.File;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -26,7 +34,6 @@ import java.util.concurrent.Future;
 
 import edu.mit.media.funf.BuildConfig;
 import edu.mit.media.funf.config.Configurable;
-import edu.mit.media.funf.util.HashCodeUtil;
 
 public class AmazonS3Archive implements RemoteFileArchive {
 
@@ -40,17 +47,32 @@ public class AmazonS3Archive implements RemoteFileArchive {
 
     private Context context;
 
-    @SuppressWarnings("unused")
     private String mimeType;
 
 
+    public interface CredentialsProviderProvider {
+        CognitoCredentialsProvider getCredentialProvider();
+    }
     public AmazonS3Archive(){}
     @Override
     public boolean add(File file) {
 
-        assert context != null;
+        if (context == null) {
+            Log.e(TAG,"Context is null, can't get cred provider");
+            return false;
+        }
 
-        Future<Boolean> future = startUpload(file);
+        final CredentialsProviderProvider credentialsProviderProvider =
+                (CredentialsProviderProvider) context.getApplicationContext();
+        CognitoCredentialsProvider credentialsProvider =
+                credentialsProviderProvider.getCredentialProvider();
+
+        if (credentialsProvider == null) {
+            Log.e(TAG,"credentialProvider is null");
+            return false;
+        }
+        areCredentialsExpired(credentialsProvider);
+        Future<Boolean> future = startUpload(file,credentialsProvider);
         Boolean result = false;
         try {
             result = future.get();
@@ -62,12 +84,15 @@ public class AmazonS3Archive implements RemoteFileArchive {
         return result;
     }
 
-    private Future<Boolean> startUpload(File file) {
-        TransferUtility transferUtility = new TransferUtility(getS3Client(context.getApplicationContext()), context.getApplicationContext());
+    private Future<Boolean> startUpload(File file, CognitoCredentialsProvider credentialsProvider) {
+
+        final AmazonS3 s3Client = new AmazonS3Client(credentialsProvider);
+        TransferUtility transferUtility = new TransferUtility(s3Client, context.getApplicationContext());
+
         final SettableFuture<Boolean> future = SettableFuture.create() ;
         TelephonyManager tMgr = (TelephonyManager)context.getSystemService(Context.TELEPHONY_SERVICE);
-        String deviceId = tMgr.getDeviceId();
-        final String key = "behavior/" + deviceId + "/" + file.getName();
+        String mPhoneNumber = tMgr.getDeviceId();
+        final String key = "behavior/" + mPhoneNumber + "/" + file.getName();
         TransferObserver observer = transferUtility.upload(bucketName, key,
                 file);
         observer.setTransferListener(new TransferListener() {
@@ -95,16 +120,27 @@ public class AmazonS3Archive implements RemoteFileArchive {
         return future;
     }
 
+    private static boolean areCredentialsExpired(@NotNull CognitoCredentialsProvider credentialsProvider) {
 
-    private AmazonS3 getS3Client(Context context) {
-        // I haven't been able to find any good examples of how to intelligently handle amazon credential
-        // refreshing. So I'm just refreshing it every time we use the service.
-        final AWSCredentialsProvider amazonCredProvider = (AWSCredentialsProvider) context.getApplicationContext();
-        amazonCredProvider.refresh();
-        return new AmazonS3Client(amazonCredProvider.getCredentials());
+        final Date credentialsExpirationDate = credentialsProvider.getSessionCredentitalsExpiration();
+
+        if (credentialsExpirationDate == null) {
+            Log.e(TAG, "Credentials are EXPIRED (null expiration).");
+            return true;
+        }
+
+        long currentTime = System.currentTimeMillis() -
+                (long)(SDKGlobalConfiguration.getGlobalTimeOffset() * 1000);
+
+        final long expireTime = credentialsExpirationDate.getTime();
+        final boolean credsAreExpired =
+                (expireTime - currentTime) < 0;
+
+        Log.d(TAG, "Credentials expire at: " + new Date(expireTime));
+        Log.d(TAG, "Credentials are " + (credsAreExpired ? "EXPIRED." : "OK"));
+
+        return credsAreExpired;
     }
-
-
 
     public AmazonS3Archive(Context context, final String uploadUrl) {
         this(context, uploadUrl, "application/x-binary");
