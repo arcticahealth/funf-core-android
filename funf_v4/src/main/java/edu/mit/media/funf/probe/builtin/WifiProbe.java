@@ -147,7 +147,11 @@ public class WifiProbe extends Base {
 	@Override
 	protected void onDisable() {
 		super.onDisable();
-		getContext().unregisterReceiver(scanResultsReceiver);
+		try {
+			getContext().unregisterReceiver(scanResultsReceiver);
+		} catch (IllegalArgumentException e) {
+
+		}
 	}
 
 	private void loadPreviousWifiState() {

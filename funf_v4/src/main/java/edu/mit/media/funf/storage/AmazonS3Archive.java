@@ -3,32 +3,22 @@ package edu.mit.media.funf.storage;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.preference.PreferenceManager;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 
-import com.amazonaws.AmazonClientException;
 import com.amazonaws.SDKGlobalConfiguration;
-import com.amazonaws.auth.CognitoCachingCredentialsProvider;
 import com.amazonaws.auth.CognitoCredentialsProvider;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferListener;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferObserver;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferState;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility;
-import com.amazonaws.regions.Regions;
-import com.amazonaws.services.cognitoidentity.model.NotAuthorizedException;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.google.common.util.concurrent.SettableFuture;
 
-import org.apache.http.client.CredentialsProvider;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
@@ -120,7 +110,7 @@ public class AmazonS3Archive implements RemoteFileArchive {
         return future;
     }
 
-    private static boolean areCredentialsExpired(@NotNull CognitoCredentialsProvider credentialsProvider) {
+    private static boolean areCredentialsExpired(CognitoCredentialsProvider credentialsProvider) {
 
         final Date credentialsExpirationDate = credentialsProvider.getSessionCredentitalsExpiration();
 

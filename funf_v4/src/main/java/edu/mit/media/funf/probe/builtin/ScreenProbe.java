@@ -77,7 +77,11 @@ public class ScreenProbe extends Base implements ContinuousProbe, ScreenKeys  {
 
 	@Override
 	protected void onDisable() {
-		getContext().unregisterReceiver(screenReceiver);
+		try {
+			getContext().unregisterReceiver(screenReceiver);
+		} catch (IllegalArgumentException e) {
+
+		}
 	}
 
 

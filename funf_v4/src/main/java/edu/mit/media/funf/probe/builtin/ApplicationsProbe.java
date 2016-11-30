@@ -47,6 +47,8 @@ import edu.mit.media.funf.probe.builtin.ProbeKeys.ApplicationsKeys;
 import edu.mit.media.funf.time.TimeUtil;
 import edu.mit.media.funf.util.LogUtil;
 
+import static edu.mit.media.funf.util.LogUtil.TAG;
+
 public class ApplicationsProbe extends ImpulseProbe implements PassiveProbe, ApplicationsKeys{
 	
 	private PackageManager pm;
@@ -99,7 +101,11 @@ public class ApplicationsProbe extends ImpulseProbe implements PassiveProbe, App
 	@Override
 	protected void onDisable() {
 		super.onDisable();
-		getContext().unregisterReceiver(packageChangeListener);
+		try {
+			getContext().unregisterReceiver(packageChangeListener);
+		} catch (IllegalArgumentException e) {
+			Log.w(TAG, getClass().getName() + "Broadcast receiver not registered.", e);
+		}
 	}
 
 	private void sendData(ApplicationInfo info, boolean installed, BigDecimal installedTimestamp) {

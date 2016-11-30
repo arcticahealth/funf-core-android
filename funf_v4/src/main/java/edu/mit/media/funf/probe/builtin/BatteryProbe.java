@@ -27,6 +27,8 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.util.Log;
+
 import edu.mit.media.funf.Schedule;
 import edu.mit.media.funf.probe.Probe.Base;
 import edu.mit.media.funf.probe.Probe.PassiveProbe;
@@ -55,6 +57,10 @@ public class BatteryProbe extends Base implements PassiveProbe {
 	@Override
 	protected void onStop() {
 		super.onStop();
-		getContext().unregisterReceiver(receiver);
+		try {
+			getContext().unregisterReceiver(receiver);
+		} catch (IllegalArgumentException e) {
+			Log.e("BatteryProde","exception", e);
+		}
 	}
 }
