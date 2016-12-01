@@ -69,7 +69,9 @@ public class ProcessStatisticsProbe extends Base {
     @Override
     protected void onStart() {
     	ActivityManager am = (ActivityManager)getContext().getApplicationContext().getSystemService(Context.ACTIVITY_SERVICE);
-		ArrayList<RunningAppProcessInfo> runningProcesses = new ArrayList<RunningAppProcessInfo>(am.getRunningAppProcesses());
+		ArrayList<RunningAppProcessInfo> runningProcesses = new ArrayList<RunningAppProcessInfo>();
+		final List<RunningAppProcessInfo> runningAppProcesses = am.getRunningAppProcesses();
+		if (runningAppProcesses != null) runningProcesses.addAll(runningAppProcesses);
 		final int numProcesses = runningProcesses.size();
 		int[] runningProcessIds = new int[numProcesses];
 		for (int i=0; i<numProcesses; i++ ) {
