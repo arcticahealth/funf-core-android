@@ -16,7 +16,6 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.google.common.util.concurrent.SettableFuture;
 
-
 import java.io.File;
 import java.util.Date;
 import java.util.concurrent.ExecutionException;
@@ -82,7 +81,7 @@ public class AmazonS3Archive implements RemoteFileArchive {
         final SettableFuture<Boolean> future = SettableFuture.create() ;
         TelephonyManager tMgr = (TelephonyManager)context.getSystemService(Context.TELEPHONY_SERVICE);
         String mPhoneNumber = tMgr.getDeviceId();
-        final String key = "behavior/" + mPhoneNumber + "/" + file.getName();
+        final String key = credentialsProvider.getIdentityId() + "/" + mPhoneNumber + "/" + file.getName();
         TransferObserver observer = transferUtility.upload(bucketName, key,
                 file);
         observer.setTransferListener(new TransferListener() {
