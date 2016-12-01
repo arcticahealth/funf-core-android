@@ -1,5 +1,4 @@
 apply plugin: 'com.android.library'
-apply plugin: 'kotlin-android'
 
 android {
     compileSdkVersion 17
@@ -29,9 +28,6 @@ android {
         exclude 'META-INF/LICENSE'
         exclude 'META-INF/NOTICE'
         exclude 'META-INF/DEPENDENCIES'
-    }
-    sourceSets {
-        main.java.srcDirs += 'src/main/kotlin'
     }
 }
 configurations.all {
@@ -105,7 +101,4 @@ android {
     defaultConfig {
         versionName getVersionName()
     }
-}
-repositories {
-    mavenCentral()
 }
