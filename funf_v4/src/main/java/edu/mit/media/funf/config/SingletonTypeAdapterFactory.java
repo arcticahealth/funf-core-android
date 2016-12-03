@@ -23,6 +23,8 @@
  */
 package edu.mit.media.funf.config;
 
+import android.util.Log;
+
 import static edu.mit.media.funf.json.JsonUtils.immutable;
 
 import java.io.IOException;
@@ -41,6 +43,8 @@ import com.google.gson.internal.bind.JsonTreeReader;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
+
+import edu.mit.media.funf.util.LogUtil;
 
 /**
  * Same configuration should return the same object.  
@@ -110,7 +114,12 @@ public class SingletonTypeAdapterFactory implements TypeAdapterFactory {
 		public E read(JsonReader in) throws IOException {
 			JsonElement el = Streams.parse(in);
 			Class<? extends E> runtimeType = delegate.getRuntimeType(el, type);
-			String configString = runtimeType.toString() + immutable(el).toString();
+			final JsonElement immutable = immutable(el);
+			if (runtimeType == null || immutable == null) {
+				Log.e(LogUtil.TAG, "runtimeType: " + runtimeType + " immutable: " + immutable);
+				return null;
+			}
+			String configString = runtimeType.toString() + immutable.toString();
 			// TODO: surround this in a try catch class cast exception
 			@SuppressWarnings("unchecked")
 			E object = (E)cache.get(configString);

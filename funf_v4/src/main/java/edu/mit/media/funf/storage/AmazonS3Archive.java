@@ -3,6 +3,7 @@ package edu.mit.media.funf.storage;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.Build;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 
@@ -61,6 +62,9 @@ public class AmazonS3Archive implements RemoteFileArchive {
             return false;
         }
         areCredentialsExpired(credentialsProvider);
+        if (BuildConfig.DEBUG) {
+            return true;
+        }
         Future<Boolean> future = startUpload(file,credentialsProvider);
         Boolean result = false;
         try {
