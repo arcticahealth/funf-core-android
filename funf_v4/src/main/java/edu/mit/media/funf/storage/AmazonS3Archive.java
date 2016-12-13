@@ -13,6 +13,7 @@ import com.amazonaws.mobileconnectors.s3.transferutility.TransferListener;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferObserver;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferState;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility;
+import com.amazonaws.services.cognitoidentity.model.NotAuthorizedException;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.ObjectMetadata;
@@ -67,6 +68,9 @@ public class AmazonS3Archive implements RemoteFileArchive {
             return true;
         }
         Future<Boolean> future = startUpload(file,credentialsProvider);
+        if (future == null) {
+            return false;
+        }
         Boolean result = false;
         try {
             result = future.get();
@@ -93,34 +97,19 @@ public class AmazonS3Archive implements RemoteFileArchive {
         String mPhoneNumber = tMgr.getDeviceId();
 
         // Set our upload url for s3
-        final String fileUrl = credentialsProvider.getIdentityId() + "/" + mPhoneNumber + "/" + file.getName();
+        String fileUrl;
+        try {
+            fileUrl = credentialsProvider.getIdentityId() + "/" + mPhoneNumber + "/" + file.getName();
+        } catch (NotAuthorizedException e){
+            Log.e(TAG,"Exception in uploading: ", e);
+            return null;
+        }
 
         // Set the future... becase we are magicians
         final SettableFuture<Boolean> future = SettableFuture.create() ;
 
         TransferObserver observer = transferUtility.upload(bucketName, fileUrl, file, myObjectMetadata);
-        observer.setTransferListener(new TransferListener() {
-            @Override
-            public void onStateChanged(int id, TransferState state) {
-                if (state == TransferState.COMPLETED) {
-                    Log.d(TAG,"upload completed for: " + fileUrl);
-                    future.set(true);
-                } else if (state == TransferState.FAILED) {
-                    Log.e(TAG,"upload FAILED for: " + bucketName + "/" + fileUrl);
-                    future.set(false);
-                }
-            }
-
-            @Override
-            public void onProgressChanged(int id, long bytesCurrent, long bytesTotal) {
-
-            }
-
-            @Override
-            public void onError(int id, Exception ex) {
-
-            }
-        });
+        observer.setTransferListener(new S3TransferListener(fileUrl, future));
         return future;
     }
 
@@ -175,5 +164,36 @@ public class AmazonS3Archive implements RemoteFileArchive {
     @Override
     public String getId() {
         return url;
+    }
+
+    private static class S3TransferListener implements TransferListener {
+        private final String key;
+        private final SettableFuture<Boolean> future;
+
+        S3TransferListener(String key, SettableFuture<Boolean> future) {
+            this.key = key;
+            this.future = future;
+        }
+
+        @Override
+        public void onStateChanged(int id, TransferState state) {
+            if (state == TransferState.COMPLETED) {
+                Log.d(TAG,"upload completed for: " + key);
+                future.set(true);
+            } else if (state == TransferState.FAILED) {
+                Log.e(TAG,"upload FAILED for: " + key);
+                future.set(false);
+            }
+        }
+
+        @Override
+        public void onProgressChanged(int id, long bytesCurrent, long bytesTotal) {
+
+        }
+
+        @Override
+        public void onError(int id, Exception ex) {
+
+        }
     }
 }

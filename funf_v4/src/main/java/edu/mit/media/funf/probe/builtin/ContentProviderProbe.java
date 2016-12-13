@@ -38,6 +38,8 @@ import android.util.Log;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
+import org.jetbrains.annotations.Nullable;
+
 import edu.mit.media.funf.Schedule;
 import edu.mit.media.funf.probe.builtin.ContentProviderProbe.CursorCell.AnyCell;
 import edu.mit.media.funf.probe.builtin.ContentProviderProbe.CursorCell.BooleanCell;
@@ -84,6 +86,7 @@ public abstract class ContentProviderProbe extends ImpulseProbe {
 	
 	class ContentProviderIterator implements Iterator<JsonObject> {
 
+		@Nullable
 		private final Cursor c;
 		private final String[] projection;
 		private final Map<String, CursorCell<?>> projectionMap;
@@ -94,6 +97,10 @@ public abstract class ContentProviderProbe extends ImpulseProbe {
 			this.projection = new String[projectionMap.size()];
 			projectionMap.keySet().toArray(projection);
 			this.c = getCursor(projection);
+			if (this.c == null) {
+				Log.e(LogUtil.TAG,"Cursor is null in contentprovideriterator. This probably means we've lost access to some data.");
+				return;
+			}
 			int count = c.getCount();
 			this.brandNew = true;
 			Log.v(LogUtil.TAG, "cursor returned " + count +" result");
@@ -102,6 +109,9 @@ public abstract class ContentProviderProbe extends ImpulseProbe {
 		@Override
 		public boolean hasNext() {
 			//Log.d(TAG, "Checking has next");
+			if (c == null) {
+				return false;
+			}
 			boolean hasNext = brandNew ? c.moveToFirst() : !(c.isClosed() || c.isLast() || c.isAfterLast());
 			if (!hasNext)
 				c.close();
@@ -110,6 +120,9 @@ public abstract class ContentProviderProbe extends ImpulseProbe {
 
 		@Override
 		public JsonObject next() {
+			if (c == null) {
+				return null;
+			}
 			if (brandNew) {
 				c.moveToFirst();
 				brandNew = false;
