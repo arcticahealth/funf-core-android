@@ -15,10 +15,12 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
             it.buildConfigField 'String', "COGNITO_POOL_ID", "\"us-west-2:6152caf7-9235-4976-a78c-6d99fe4bf691\""
             it.buildConfigField 'String', "S3_BUCKET_NAME", "\"data-dev-arcticahealth-com\""
+            it.buildConfigField 'String', "S3_KMS_KEY", "\"93d95769-686b-4ff7-bda9-5ff1fa8954cd\""
         }
         debug {
             it.buildConfigField 'String', "COGNITO_POOL_ID", "\"us-west-2:6152caf7-9235-4976-a78c-6d99fe4bf691\""
             it.buildConfigField 'String', "S3_BUCKET_NAME", "\"data-dev-arcticahealth-com\""
+            it.buildConfigField 'String', "S3_KMS_KEY", "\"93d95769-686b-4ff7-bda9-5ff1fa8954cd\""
         }
         buildTypes.each {
 
