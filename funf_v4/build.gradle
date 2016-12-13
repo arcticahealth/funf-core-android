@@ -13,8 +13,11 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+            // The federated identity pool
             it.buildConfigField 'String', "COGNITO_POOL_ID", "\"us-west-2:cf46dd5e-3509-42e5-ade0-a2adec76c466\""
+            // Where we upload behavior data to
             it.buildConfigField 'String', "S3_BUCKET_NAME", "\"data-prod-arcticahealth-com\""
+            // The AWS KMS Key we use for S3 server side encryption
             it.buildConfigField 'String', "S3_KMS_KEY", "\"64a79832-f859-4de3-867a-30675776ab22\""
         }
         debug {

@@ -106,7 +106,7 @@ public class AmazonS3Archive implements RemoteFileArchive {
                     Log.d(TAG,"upload completed for: " + fileUrl);
                     future.set(true);
                 } else if (state == TransferState.FAILED) {
-                    Log.e(TAG,"upload FAILED for: " + fileUrl);
+                    Log.e(TAG,"upload FAILED for: " + bucketName + "/" + fileUrl);
                     future.set(false);
                 }
             }
