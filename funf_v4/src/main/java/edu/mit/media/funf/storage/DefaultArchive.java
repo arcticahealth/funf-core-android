@@ -164,7 +164,9 @@ public class DefaultArchive implements FileArchive {
 				if (delegateArchive == null) {
 					SecretKey key = getSecretKey();
 					String rootSdCardPath = getPathOnSDCard();
-					FileArchive backupArchive = FileDirectoryArchive.getRollingFileArchive(new File("funf_" + getCleanedName() + "_backup"));
+					final File archiveDir = new File("funf_" + getCleanedName() + "_backup");
+					if (! archiveDir.exists()) { archiveDir.mkdir();}
+					FileArchive backupArchive = FileDirectoryArchive.getRollingFileArchive(archiveDir);
 					FileArchive mainArchive = new CompositeFileArchive(
 							//getTimestampedDbFileArchive(new File(rootSdCardPath + "archive"), context, key, compress),
 							getTimestampedDbFileArchive(context.getDir("funf_" + getCleanedName() + "_archive", Context.MODE_PRIVATE), context, key, compress)
