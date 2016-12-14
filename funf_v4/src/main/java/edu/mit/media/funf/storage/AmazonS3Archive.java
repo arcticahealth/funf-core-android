@@ -24,14 +24,14 @@ import java.util.Date;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
-import edu.mit.media.funf.BuildConfig;
+import edu.mit.media.funf.BuildConfigHelper;
 import edu.mit.media.funf.config.Configurable;
 
 public class AmazonS3Archive implements RemoteFileArchive {
 
     public static final String TAG = AmazonS3Archive.class.getSimpleName();
     @Configurable
-    private static String bucketName = BuildConfig.S3_BUCKET_NAME;
+    private static String bucketName = BuildConfigHelper.S3_BUCKET_NAME;
     @Configurable
     private String url;
     @Configurable
@@ -64,9 +64,10 @@ public class AmazonS3Archive implements RemoteFileArchive {
             return false;
         }
         areCredentialsExpired(credentialsProvider);
-        if (BuildConfig.DEBUG) {
-            return true;
-        }
+        // It's actually pretty helpful to have this turned on... 
+        //if (BuildConfigHelper.DEBUG) {
+        //    return true;
+        //}
         Future<Boolean> future = startUpload(file,credentialsProvider);
         if (future == null) {
             return false;
@@ -89,7 +90,7 @@ public class AmazonS3Archive implements RemoteFileArchive {
 
         // Tell S3 to use server side encryption using the provided key
         ObjectMetadata myObjectMetadata = new ObjectMetadata();
-        myObjectMetadata.setSSEKMSKeyId(BuildConfig.S3_KMS_KEY);
+        myObjectMetadata.setSSEKMSKeyId(BuildConfigHelper.S3_KMS_KEY);
         myObjectMetadata.setSSEAlgorithm(ObjectMetadata.AES_256_SERVER_SIDE_ENCRYPTION);
 
         // We'll need the phone number
@@ -167,21 +168,21 @@ public class AmazonS3Archive implements RemoteFileArchive {
     }
 
     private static class S3TransferListener implements TransferListener {
-        private final String key;
+        private final String fileUrl;
         private final SettableFuture<Boolean> future;
 
         S3TransferListener(String key, SettableFuture<Boolean> future) {
-            this.key = key;
+            this.fileUrl = key;
             this.future = future;
         }
 
         @Override
         public void onStateChanged(int id, TransferState state) {
             if (state == TransferState.COMPLETED) {
-                Log.d(TAG,"upload completed for: " + key);
+                Log.d(TAG,"upload completed for: " + bucketName + "/" + fileUrl);
                 future.set(true);
             } else if (state == TransferState.FAILED) {
-                Log.e(TAG,"upload FAILED for: " + key);
+                Log.e(TAG,"upload FAILED for: " + bucketName + "/" + fileUrl);
                 future.set(false);
             }
         }
