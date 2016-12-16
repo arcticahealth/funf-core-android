@@ -3,7 +3,6 @@ package edu.mit.media.funf.storage;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.os.Build;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 
@@ -26,6 +25,7 @@ import java.util.concurrent.Future;
 
 import edu.mit.media.funf.BuildConfigHelper;
 import edu.mit.media.funf.config.Configurable;
+import edu.mit.media.funf.util.IOUtil;
 
 public class AmazonS3Archive implements RemoteFileArchive {
 
@@ -63,7 +63,7 @@ public class AmazonS3Archive implements RemoteFileArchive {
             Log.e(TAG,"credentialProvider is null");
             return false;
         }
-        areCredentialsExpired(credentialsProvider);
+        logCredentialStatus(credentialsProvider);
         // It's actually pretty helpful to have this turned on... 
         //if (BuildConfigHelper.DEBUG) {
         //    return true;
@@ -113,8 +113,7 @@ public class AmazonS3Archive implements RemoteFileArchive {
         observer.setTransferListener(new S3TransferListener(fileUrl, future));
         return future;
     }
-
-    private static boolean areCredentialsExpired(CognitoCredentialsProvider credentialsProvider) {
+    public static boolean logCredentialStatus(CognitoCredentialsProvider credentialsProvider) {
 
         final Date credentialsExpirationDate = credentialsProvider.getSessionCredentitalsExpiration();
 

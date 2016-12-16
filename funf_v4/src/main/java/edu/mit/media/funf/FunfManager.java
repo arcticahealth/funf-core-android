@@ -73,6 +73,7 @@ import edu.mit.media.funf.config.ConfigurableTypeAdapterFactory;
 import edu.mit.media.funf.config.ContextInjectorTypeAdapaterFactory;
 import edu.mit.media.funf.config.DefaultRuntimeTypeAdapterFactory;
 import edu.mit.media.funf.config.DefaultScheduleSerializer;
+import edu.mit.media.funf.config.DynamoDBConfigUpdater;
 import edu.mit.media.funf.config.HttpConfigUpdater;
 import edu.mit.media.funf.config.SingletonTypeAdapterFactory;
 import com.google.gson.IJsonObject;
@@ -428,7 +429,7 @@ public class FunfManager extends Service {
 		.registerTypeAdapterFactory(getProbeFactory(context))
 		.registerTypeAdapterFactory(getPipelineFactory(context))
 		.registerTypeAdapterFactory(new ConfigurableRuntimeTypeAdapterFactory<Schedule>(context, Schedule.class, BasicSchedule.class))
-		.registerTypeAdapterFactory(new ConfigurableRuntimeTypeAdapterFactory<ConfigUpdater>(context, ConfigUpdater.class, HttpConfigUpdater.class))
+		.registerTypeAdapterFactory(new ConfigurableRuntimeTypeAdapterFactory<ConfigUpdater>(context, ConfigUpdater.class, DynamoDBConfigUpdater.class))
 		.registerTypeAdapterFactory(new ConfigurableRuntimeTypeAdapterFactory<FileArchive>(context, FileArchive.class, DefaultArchive.class))
 		.registerTypeAdapterFactory(new ConfigurableRuntimeTypeAdapterFactory<RemoteFileArchive>(context, RemoteFileArchive.class, AmazonS3Archive.class))
 		.registerTypeAdapter(DefaultSchedule.class, new DefaultScheduleSerializer())
