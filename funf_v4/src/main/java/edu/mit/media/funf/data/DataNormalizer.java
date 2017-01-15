@@ -23,6 +23,10 @@
  */
 package edu.mit.media.funf.data;
 
+import android.util.Log;
+
+import org.jetbrains.annotations.Nullable;
+
 public interface DataNormalizer<T> {
 
 	public T normalize(T data);
@@ -38,8 +42,14 @@ public interface DataNormalizer<T> {
 	
 	public class PhoneNumberNormalizer implements DataNormalizer<String> {
 
+		private static final String TAG = PhoneNumberNormalizer.class.getSimpleName();
+
 		@Override
-		public String normalize(String numberString) {
+		public String normalize(@Nullable String numberString) {
+			if (numberString == null) {
+				Log.e(TAG,"Request to normalize a null string, returning an empty string");
+				return "";
+			}
 			numberString = numberString.replaceAll("[^0-9]","");
 			int i = numberString.length();
 			if (i <= 10)
