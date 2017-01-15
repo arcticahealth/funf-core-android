@@ -41,6 +41,7 @@ import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
 import android.os.PowerManager;
+import android.util.Log;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -363,6 +364,8 @@ public interface Probe {
 	public abstract class Base implements Probe, BaseProbeKeys {
 
 		private Context context;
+		private static final String TAG = Base.class.getSimpleName();
+
 
 		/**
 		 * No argument constructor requires that setContext be called manually.
@@ -572,6 +575,7 @@ public interface Probe {
 			// to be protecting. As a hotfix, stop the existing looper thread and re-
 			// create it.
 			if (looper != null && handler == null) {
+				Log.e(TAG,"Null handler bug, recreating looper");
 				looper.quit();
 				looper = null;
 			}
