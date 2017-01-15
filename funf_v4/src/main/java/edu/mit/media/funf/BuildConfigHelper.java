@@ -7,7 +7,7 @@ import java.lang.reflect.Field;
 public class BuildConfigHelper {
 
 
-    private static final String BUILD_CONFIG = "com.arcticahealth.arctica.models.BuildConfigHelper";
+    private static final String BUILD_CONFIG = "com.arcticahealth.arcus.models.BuildConfigHelper";
 
     public static final boolean DEBUG = getDebug();
     public static final String AWS_ACCOUNT_ID = (String) getBuildConfigValue("AWS_ACCOUNT_ID");

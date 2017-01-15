@@ -567,9 +567,18 @@ public interface Probe {
 		}
 
 		private void ensureLooperThreadExists() {
+			// Seems like some bug here where the looper is not null, but the handler is
+			// this manifests with a crash in the methods that this method is supposed
+			// to be protecting. As a hotfix, stop the existing looper thread and re-
+			// create it.
+			if (looper != null && handler == null) {
+				looper.quit();
+				looper = null;
+			}
 			if (looper == null) {
 				synchronized (this) {
 					if (looper == null) {
+
 						HandlerThread thread = new HandlerThread("Probe[" + getClass().getName() + "]");
 						thread.start();
 						looper = thread.getLooper();
