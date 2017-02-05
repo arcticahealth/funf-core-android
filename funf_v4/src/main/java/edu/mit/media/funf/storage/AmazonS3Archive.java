@@ -41,16 +41,47 @@ public class AmazonS3Archive implements RemoteFileArchive {
 
     private String mimeType;
 
+    public interface CloudLoggingUtility {
+        void log(String message);
+        void log(Exception e);
+
+        void log(String message, Exception e);
+    }
 
     public interface CredentialsProviderProvider {
         CognitoCredentialsProvider getCredentialProvider();
     }
     public AmazonS3Archive(){}
+
+
+    private void log(String message) {
+        Log.e(TAG, message);
+        if (context.getApplicationContext() instanceof CloudLoggingUtility) {
+            CloudLoggingUtility cloudLoggingUtility = (CloudLoggingUtility) context.getApplicationContext();
+            cloudLoggingUtility.log(message);
+        }
+    }
+    private void log(Exception e) {
+        e.printStackTrace();
+        if (context.getApplicationContext() instanceof CloudLoggingUtility) {
+            CloudLoggingUtility cloudLoggingUtility = (CloudLoggingUtility) context.getApplicationContext();
+            cloudLoggingUtility.log(e);
+        }
+    }
+    private void log(String message, Exception e) {
+        Log.e(TAG,message);
+        e.printStackTrace();
+        if (context.getApplicationContext() instanceof CloudLoggingUtility) {
+            CloudLoggingUtility cloudLoggingUtility = (CloudLoggingUtility) context.getApplicationContext();
+            cloudLoggingUtility.log(message,e);
+        }
+    }
+
     @Override
     public boolean add(File file) {
 
         if (context == null) {
-            Log.e(TAG,"Context is null, can't get cred provider");
+            log("Context is null, can't get cred provider");
             return false;
         }
 
@@ -60,7 +91,7 @@ public class AmazonS3Archive implements RemoteFileArchive {
                 credentialsProviderProvider.getCredentialProvider();
 
         if (credentialsProvider == null) {
-            Log.e(TAG,"credentialProvider is null");
+            log("credentialProvider is null");
             return false;
         }
         logCredentialStatus(credentialsProvider);
@@ -76,9 +107,13 @@ public class AmazonS3Archive implements RemoteFileArchive {
         try {
             result = future.get();
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            log(e);
         } catch (ExecutionException e) {
-            e.printStackTrace();
+            log(e);
+        }
+        if (!result) {
+            TelephonyManager tMgr = (TelephonyManager)context.getSystemService(Context.TELEPHONY_SERVICE);
+            log("User: " + tMgr.getDeviceId() + " " + " unable to upload file: " +file.getName());
         }
         return result;
     }
@@ -102,7 +137,7 @@ public class AmazonS3Archive implements RemoteFileArchive {
         try {
             fileUrl = credentialsProvider.getIdentityId() + "/" + mPhoneNumber + "/" + file.getName();
         } catch (NotAuthorizedException e){
-            Log.e(TAG,"Exception in uploading: ", e);
+            log("Not authorized user: " + mPhoneNumber, e);
             return null;
         }
 
@@ -113,7 +148,7 @@ public class AmazonS3Archive implements RemoteFileArchive {
         observer.setTransferListener(new S3TransferListener(fileUrl, future));
         return future;
     }
-    public static boolean logCredentialStatus(CognitoCredentialsProvider credentialsProvider) {
+    private static boolean logCredentialStatus(CognitoCredentialsProvider credentialsProvider) {
 
         final Date credentialsExpirationDate = credentialsProvider.getSessionCredentitalsExpiration();
 
@@ -139,7 +174,7 @@ public class AmazonS3Archive implements RemoteFileArchive {
         this(context, uploadUrl, "application/x-binary");
     }
 
-    public AmazonS3Archive(Context context, final String uploadUrl, final String mimeType) {
+    private AmazonS3Archive(Context context, final String uploadUrl, final String mimeType) {
         this.url = uploadUrl;
         this.mimeType = mimeType;
     }
