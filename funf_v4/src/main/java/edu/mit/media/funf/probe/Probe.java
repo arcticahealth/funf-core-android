@@ -529,9 +529,11 @@ public interface Probe {
 				return;
 			} else if (Thread.currentThread() != looper.getThread()) {
 				// Ensure the data send runs on the probe's thread
-				if (handler != null) {
-					Message dataMessage = handler.obtainMessage(SEND_DATA_MESSAGE, data);
-					handler.sendMessage(dataMessage);
+				synchronized (this) {
+					if (handler != null) {
+						Message dataMessage = handler.obtainMessage(SEND_DATA_MESSAGE, data);
+						handler.sendMessage(dataMessage);
+					}
 				}
 			} else {
 				if (!data.has(TIMESTAMP)) {

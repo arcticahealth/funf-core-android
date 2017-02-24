@@ -6,6 +6,7 @@ import android.net.NetworkInfo;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 
+import com.amazonaws.AmazonClientException;
 import com.amazonaws.SDKGlobalConfiguration;
 import com.amazonaws.auth.CognitoCredentialsProvider;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferListener;
@@ -112,8 +113,6 @@ public class AmazonS3Archive implements RemoteFileArchive {
             log(e);
         }
         if (!result) {
-            TelephonyManager tMgr = (TelephonyManager)context.getSystemService(Context.TELEPHONY_SERVICE);
-            log("User: " + tMgr.getDeviceId() + " " + " unable to upload file: " +file.getName());
         }
         return result;
     }
@@ -138,6 +137,9 @@ public class AmazonS3Archive implements RemoteFileArchive {
             fileUrl = credentialsProvider.getIdentityId() + "/" + mPhoneNumber + "/" + file.getName();
         } catch (NotAuthorizedException e){
             log("Not authorized user: " + mPhoneNumber, e);
+            return null;
+        } catch (AmazonClientException e) {
+            log("Amazon Client exception for user: " + mPhoneNumber,e);
             return null;
         }
 
@@ -201,7 +203,7 @@ public class AmazonS3Archive implements RemoteFileArchive {
         return url;
     }
 
-    private static class S3TransferListener implements TransferListener {
+    private class S3TransferListener implements TransferListener {
         private final String fileUrl;
         private final SettableFuture<Boolean> future;
 
@@ -209,6 +211,7 @@ public class AmazonS3Archive implements RemoteFileArchive {
             this.fileUrl = key;
             this.future = future;
         }
+
 
         @Override
         public void onStateChanged(int id, TransferState state) {
@@ -220,7 +223,6 @@ public class AmazonS3Archive implements RemoteFileArchive {
                 future.set(false);
             }
         }
-
         @Override
         public void onProgressChanged(int id, long bytesCurrent, long bytesTotal) {
 
@@ -229,6 +231,8 @@ public class AmazonS3Archive implements RemoteFileArchive {
         @Override
         public void onError(int id, Exception ex) {
 
+            TelephonyManager tMgr = (TelephonyManager)context.getSystemService(Context.TELEPHONY_SERVICE);
+            log("User: " + tMgr.getDeviceId() + " " + " unable to upload file", ex);
         }
     }
 }
